@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Creation.cs">
+    <Files>
+      <File FileName="Assets\Scripts\Creation.cs" Line="65" Column="31" />
+      <File FileName="Assets\Scripts\Gathering.cs" Line="59" Column="59" />
+      <File FileName="Assets\Scripts\Resources\Generator.cs" Line="30" Column="3" />
+      <File FileName="Assets\Scripts\Spawn.cs" Line="72" Column="3" />
+      <File FileName="Assets\Scripts\AI\NavigationScript.cs" Line="17" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

@@ -1,0 +1,78 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class Flock : MonoBehaviour {
+
+	public int flockSize = 10;
+	float spawnRange = 20;
+	public GameObject boidPrefab;
+	
+	List<GameObject> flock;
+	
+	int villagersSpawned = 0;
+	
+	int recordedTotalHouses = 0;
+	
+	// Use this for initialization
+	void Start () {
+		InitFlock();
+	}
+	
+	void InitFlock()
+	{
+		flock = new List<GameObject>();
+		for(int i=0;i<flockSize;i++)
+		{
+			GameObject boid = Instantiate(boidPrefab, transform.position, transform.rotation) as GameObject;
+			boid.transform.parent = transform;
+			
+			// Set boid position proper
+			Vector3 newPos = new Vector3(Random.insideUnitCircle.x, 0, Random.insideUnitCircle.y) + collider.bounds.size;
+			Vector3 position = new Vector3(newPos.x + Random.Range(-spawnRange,spawnRange), 0, newPos.y + Random.Range(-spawnRange,spawnRange));
+			boid.transform.localPosition = position;
+			flock.Add(boid);
+			villagersSpawned++;
+			boid.GetComponent<FlockingBehaviour>().villagerID = villagersSpawned;
+		}
+		
+		foreach(GameObject boid in flock)
+		{
+			boid.GetComponent<FlockingBehaviour>().StartFlocking(flock);
+		}	
+	}
+	
+	public void NewBoid()
+	{
+		GameObject boid = Instantiate(boidPrefab, transform.position, transform.rotation) as GameObject;
+		boid.transform.parent = transform;
+		
+		// Set boid position proper
+		Vector3 newPos = new Vector3(Random.insideUnitCircle.x, 0, Random.insideUnitCircle.y) + collider.bounds.size;
+		Vector3 position = new Vector3(newPos.x + Random.Range(-spawnRange,spawnRange), 0, newPos.y + Random.Range(-spawnRange,spawnRange));
+		boid.transform.localPosition = position;
+		flock.Add(boid);	
+		villagersSpawned++;
+		
+		boid.GetComponent<FlockingBehaviour>().StartFlocking(flock);
+		boid.GetComponent<FlockingBehaviour>().villagerID = villagersSpawned;
+		
+		flockSize++;
+	}
+	
+	// Update is called once per frame
+	void Update () {
+	
+		if(World.currentHouses > recordedTotalHouses)
+		{
+			if(Random.Range(1,11)>7) 
+			{
+				NewBoid();
+			}
+			
+			NewBoid();
+			
+			recordedTotalHouses = World.currentHouses;
+		}
+	}
+}
