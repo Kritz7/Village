@@ -51,13 +51,6 @@ public class GraphScript : MonoBehaviour {
 	
 	public void RecalculatePaths()
 	{
-		/*
-		foreach(NavigationScript ns in nodes)
-		{
-			ns.CalcEdges();
-		}
-		*/
-		
 		updateEdges = true;
 		edgeUpdateProgress = 0;
 	}

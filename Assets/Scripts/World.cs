@@ -9,6 +9,9 @@ public static class World
 	public static int currentHouses = 0;
 	public static List<Vector3> housePositions = new List<Vector3>();
 	
+	public static List<Vector3> objectPositions = new List<Vector3>();
+	public static List<string> objectNames = new List<string>();
+	
 	public static bool showPathfindingLines = false;
 	public static bool showBadPathfindingLines = false;
 	
@@ -18,6 +21,12 @@ public static class World
 		currentHouses++;
 	}
 	
+	public static void StoreNewObject(Vector3 location, string name)
+	{
+		objectPositions.Add(location);
+		objectNames.Add(name);
+	}
+	
 	public static bool CanCreateHouseHere(Vector3 location)
 	{
 		bool r = true;
@@ -25,23 +34,21 @@ public static class World
 		RaycastHit hit;
 		if(Physics.Raycast(location, -Vector3.up, out hit, 2F))
 		{
-			if(!hit.transform.gameObject.name.Contains("Stone"))
+			if(housePositions.Count > 0)
 			{
-				if(housePositions.Count > 0)
+				foreach(Vector3 pos in housePositions)
 				{
-					foreach(Vector3 pos in housePositions)
-					{
-						if((location - pos).magnitude < distanceFromOtherHouses)
-							r = false;
-					}
+					if((location - pos).magnitude < distanceFromOtherHouses)
+						r = false;
 				}
-				else r = true;
+				
+				foreach(Vector3 pos in objectPositions)
+				{
+					if((location - pos).magnitude < distanceFromOtherHouses)
+						r = false;
+				}
 			}
-			else
-			{
-				r = false;
-				Debug.Log("Cannot build on " + hit.transform.gameObject.name);
-			}
+			else r = true;
 		}
 		else
 		{

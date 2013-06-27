@@ -20,6 +20,7 @@ public class Creation : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+		// HOUSE
 		if(Input.GetKeyDown(KeyCode.Alpha1))
 		{
 			if(World.CanCreateHouseHere(transform.position))
@@ -38,6 +39,7 @@ public class Creation : MonoBehaviour {
 			}
 		}		
 		
+		// STONE PATH
 		if(Input.GetKeyDown(KeyCode.Alpha2))
 		{
 			if(playerGathering.rock >= pathCost[0])
@@ -50,7 +52,33 @@ public class Creation : MonoBehaviour {
 			}
 		}
 		
+		// BASKET
 		if(Input.GetKeyDown(KeyCode.Alpha3))
+		{
+			if(playerGathering.rock >= pathCost[0])
+			{
+				GameObject newObj = Instantiate(Resources.Load("basket"), transform.position - (Vector3.up * 1.25F), transform.rotation * Quaternion.Euler(new Vector3(270, 0, 0))) as GameObject;
+				Spawn o = newObj.GetComponent<Spawn>();
+				o.goalPosition = new Vector3(transform.position.x, 0 + newObj.transform.localScale.y, transform.position.z);
+				
+				int count = 0;
+				
+				foreach(string s in World.objectNames)
+				{
+					if(s.Equals("basket")) count++;	
+				}
+				
+				newObj.GetComponent<Storage>().basketID = count + 1;
+				o.basketID = count + 1;
+				
+				World.StoreNewObject(transform.position, "basket");
+				
+				playerGathering.rock -= pathCost[0];
+			}
+		}
+		
+		// WATER
+		if(Input.GetKeyDown(KeyCode.Alpha4))
 		{
 			/* stolen from http://answers.unity3d.com/questions/11093/modifying-terrain-height-under-a-gameobject-at-run.html */
 			
@@ -72,13 +100,18 @@ public class Creation : MonoBehaviour {
 			
 			posXInTerrain = (int) (coord.x * hmWidth);
 			posYInTerrain = (int) (coord.z * hmHeight);
-			 
+			
+			posXInTerrain = Mathf.Clamp(posXInTerrain, size / 2, hmWidth - size / 2);
+			posYInTerrain = Mathf.Clamp(posYInTerrain, size / 2, hmHeight - size / 2);
+			
 				// we set an offset so that all the raising terrain is under this game object
 			int offset = size / 2;
 			 
 			// get the heights of the terrain under this game object
+			print ( posXInTerrain );
+			
 			float[,] heights = terr.terrainData.GetHeights(posXInTerrain-offset,posYInTerrain-offset,size,size);
-			 
+			
 			// we set each sample of the terrain in the size to the desired height
 			for (int i=0; i<size; i++)
 			{

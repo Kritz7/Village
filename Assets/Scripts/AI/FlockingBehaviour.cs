@@ -7,6 +7,7 @@ public class FlockingBehaviour : MonoBehaviour
 	
 	public int villagerID = -1;
 	public int homeID = -1;
+	public int basketID = -1;
 	
 	float maxSpeed = 2;
 	float maxForce = 3;
@@ -251,6 +252,8 @@ public class FlockingBehaviour : MonoBehaviour
 					if(node.index == i) found = true;	
 				}
 				
+				// not in history and, not owned or villager owns or low random chance
+				// won't go into owned houses unless I own it, unless I seldom randomly want to
 				if(!found && ( node.ownedByVillager == -1 ||  (villagerID!=-1 && node.ownedByVillager == villagerID) || Random.Range(1,100)>90 ))
 				{
 					dist = (node.transform.position - t).magnitude;
@@ -269,27 +272,6 @@ public class FlockingBehaviour : MonoBehaviour
 		return nearestNode;
 	}
 	
-	int FindClosestVisibleNode(Vector3 t)
-	{
-		float dist = 9999; // infinity
-		int nearestNode = 0;
-		int layerMask = ~(1<<8);
-		
-		foreach(NavigationScript node in graph.nodes)
-		{
-			if(!Physics.Linecast(t, node.transform.position, layerMask))
-			{
-				if((node.transform.position - t).magnitude < dist)
-				{
-					dist = (node.transform.position - t).magnitude;
-					nearestNode = node.index;
-				}				
-			}
-		}
-		
-		return nearestNode;
-	}
-	
 	int FindClosestVisibleNode(Transform t)
 	{
 		float dist = 9999; // infinity
@@ -300,7 +282,7 @@ public class FlockingBehaviour : MonoBehaviour
 		{
 			if(!Physics.Linecast(t.position - t.up, node.transform.position, layerMask))
 			{
-				if((node.transform.position - t.position).magnitude < dist)
+				if((node.transform.position - t.position).magnitude < dist && node.edges.Count > 0)
 				{
 					dist = (node.transform.position - t.position).magnitude;
 					nearestNode = node.index;
@@ -345,7 +327,7 @@ public class FlockingBehaviour : MonoBehaviour
 		
 		if(pathToFollow.Count > 0)
 		{
-			if(Physics.Linecast(transform.position  - transform.up, graph.nodes[pathToFollow[0]].transform.position, layerMask))
+			if(Physics.Linecast(transform.position, graph.nodes[pathToFollow[0]].transform.position, layerMask))
 			{
 				pathToFollow = graph.FindPath(Random.Range(0, graph.nodes.Count-1), pathToFollow[pathToFollow.Count-1]);
 				//pathToFollow = graph.FindPath(FindClosestVisibleNode(transform), Random.Range(0, graph.nodes.Count-1));
@@ -359,6 +341,8 @@ public class FlockingBehaviour : MonoBehaviour
 			
 			if((transform.position - graph.nodes[pathToFollow[0]].transform.position).magnitude <= 2F)
 			{
+				
+				// Villager finds unowned house
 				if(graph.nodes[pathToFollow[0]].parentHomeID != -1 && homeID == -1 && graph.nodes[pathToFollow[0]].ownedByVillager == -1)
 				{
 					int villagerNewHomeID = graph.nodes[pathToFollow[0]].parentHomeID;
@@ -373,11 +357,48 @@ public class FlockingBehaviour : MonoBehaviour
 						}
 					}
 					
-					//renderer.material.color = Color.cyan;
+					GameObject hat;
+					if(!transform.FindChild("Hat(Clone)"))
+					{
+						hat = Instantiate(Resources.Load("Hat"), transform.position + transform.up/2, transform.rotation) as GameObject;
+						hat.transform.parent = this.transform;
+					}
+					else
+					{
+						hat = transform.FindChild("Hat(Clone)").gameObject;	
+					}
 					
-					GameObject hat = Instantiate(Resources.Load("Hat"), transform.position + transform.up/2, transform.rotation) as GameObject;
-					hat.transform.parent = this.transform;
 					hat.renderer.material.color = new Color(Random.value, Random.value, Random.value, 1.0F);
+				}
+				
+				// Villager finds unmanned basket
+				if(graph.nodes[pathToFollow[0]].parentBasketID != -1 && basketID == -1 && graph.nodes[pathToFollow[0]].ownedByVillager == -1)
+				{
+					int villagerNewBasketID = graph.nodes[pathToFollow[0]].parentBasketID;
+					graph.nodes[pathToFollow[0]].VillagerNowOwns(this);
+					
+					foreach(NavigationScript ns in graph.nodes)
+					{
+						if(ns.parentBasketID == villagerNewBasketID)
+						{
+							ownedNodes.Add(ns.index);
+							ns.VillagerNowOwns(this);
+						}
+					}
+					
+					GameObject hat;
+					if(!transform.FindChild("Hat(Clone)"))
+					{
+						hat = Instantiate(Resources.Load("Hat"), transform.position + transform.up/2, transform.rotation) as GameObject;
+						hat.transform.parent = this.transform;
+					}
+					else
+					{
+						hat = transform.FindChild("Hat(Clone)").gameObject;	
+					}
+					
+					hat.transform.FindChild("Cube").renderer.material.color = new Color(Random.value, Random.value, Random.value, 1.0F);
+					
 				}
 				
 				if(Random.Range(0,100) > 75) idleDelay = Random.Range(0, 5);

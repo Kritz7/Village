@@ -20,6 +20,7 @@ public class Spawn : MonoBehaviour {
 	public Structure structureType;
 	
 	public int homeID = -1;
+	public int basketID = -1;
 	
 	// Use this for initialization
 	void Start () {
@@ -66,65 +67,32 @@ public class Spawn : MonoBehaviour {
 	void DetectNewNodes()
 	{		
 		List<Transform> nodes = new List<Transform>();
-	//	List<Transform> nodesToDestroy = new List<Transform>();
-//		List<NavigationScript> graphNodesToKeep = new List<NavigationScript>();
 		GameObject nav = GameObject.Find("NavigationGraph");
+		int layerMask = ~((1<<9) | (1<<10));
 		
 		
 		foreach(Transform t in transform)
 		{			
-			
 			if(t.name.Contains("Node"))
 			{
-				/* slow removal code
-				bool removeThis = false;
 				
-				foreach(NavigationScript worldNode in gs.nodes)
+				RaycastHit hit;
+				if(!Physics.SphereCast(t.position, t.lossyScale.y, t.forward, out hit, 0.01F, layerMask))
 				{
-					if((worldNode.transform.position - t.transform.position).magnitude < 1F)
-					{
-						if(worldNode.insideBuilding)
-						{
-							removeThis = true;	
-						}
-						else if(t.GetComponent<NavigationScript>().insideBuilding)
-						{
-							nodesToDestroy.Add(worldNode.transform);	
-						}
-					}
-					
-					if((transform.position - worldNode.transform.position).magnitude < 10F && name.Contains("House")) nodesToDestroy.Add(worldNode.transform);
+					nodes.Add(t);
 				}
-				
-				if(!removeThis) nodes.Add(t);
-				else nodesToDestroy.Add(t);
-				*/
-				nodes.Add(t);
+				else
+				{
+					print ("Hit " + hit.transform.name + " " + t.localScale.y);	
+				}
 			}
 		}	
-					/*
-		
-		foreach(NavigationScript graphnodes in gs.nodes)
-		{
-			bool destroy = false;
-			
-			foreach(Transform ntd in nodesToDestroy)
-			{
-				if(graphnodes == ntd.GetComponent<NavigationScript>()) destroy = true;
-			}
-			
-			if(!destroy) graphNodesToKeep.Add(graphnodes);
-		}
-		
-		
-		gs.nodes = graphNodesToKeep;		
-		nodesToDestroy.ForEach(child => Destroy(child.gameObject));
-		*/
-		
+
 		foreach(Transform n in nodes)
 		{			
 			n.parent = nav.transform;
 			n.GetComponent<NavigationScript>().parentHomeID = homeID;
+			n.GetComponent<NavigationScript>().parentBasketID = basketID;
 			gs.AddNode(n.gameObject);
 		}
 		

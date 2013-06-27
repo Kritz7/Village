@@ -44,6 +44,22 @@ public class Gathering : MonoBehaviour {
 								Random.Range(110, 250));
 						}
 					}
+					
+					if(hit.transform.name.Contains("basket"))
+					{
+						GameObject basket = hit.transform.gameObject;
+						Storage basketStorage = basket.GetComponent<Storage>();
+						
+						if(basketStorage.storedQuantity > 0)
+						{
+								rock += basketStorage.TakeResourcesFromPile(basketStorage.storedQuantity);
+						}
+						else
+						{
+							basketStorage.AddResourceIntoPile(Storage.Resource.Rock, rock);
+							rock = 0;
+						}
+					}
 				}
 			}
 		}
