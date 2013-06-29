@@ -33,13 +33,8 @@ public class Flock : MonoBehaviour {
 			boid.transform.localPosition = position;
 			flock.Add(boid);
 			villagersSpawned++;
-			boid.GetComponent<FlockingBehaviour>().villagerID = villagersSpawned;
+			boid.GetComponent<FlockingBehaviourRedux>().villagerID = villagersSpawned;
 		}
-		
-		foreach(GameObject boid in flock)
-		{
-			boid.GetComponent<FlockingBehaviour>().StartFlocking(flock);
-		}	
 	}
 	
 	public void NewBoid()
@@ -54,8 +49,8 @@ public class Flock : MonoBehaviour {
 		flock.Add(boid);	
 		villagersSpawned++;
 		
-		boid.GetComponent<FlockingBehaviour>().StartFlocking(flock);
-		boid.GetComponent<FlockingBehaviour>().villagerID = villagersSpawned;
+		//boid.GetComponent<FlockingBehaviourRedux>().StartFlocking(flock);
+		boid.GetComponent<FlockingBehaviourRedux>().villagerID = villagersSpawned;
 		
 		flockSize++;
 	}

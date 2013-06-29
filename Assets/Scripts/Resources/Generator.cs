@@ -10,19 +10,32 @@ public class Generator : MonoBehaviour {
 	}
 	public Resource generator;
 	
+	public int spawnedResources = 0;
+	
 	public int maxConcurrentResources = 10;	
 	public float resourceSpawnRadius;
 	float minResourceSpawnRadius;
 	
+	bool initSpawn = false;
+	
 	// Use this for initialization
-	void Start ()
+	void Awake ()
 	{
 		resourceSpawnRadius = transform.localScale.y * 0.8F;
-		minResourceSpawnRadius = transform.localScale.y * 0.5F;
-		
-		for(int i = 0; i<maxConcurrentResources; i++)
+		minResourceSpawnRadius = transform.localScale.y * 0.6F;
+	}
+	
+	void Update()
+	{
+		if(initSpawn == false)
 		{
-			SpawnResource();	
+			for(int i = 0; i<maxConcurrentResources; i++)
+			{
+				SpawnResource();	
+				spawnedResources++;
+			}	
+			
+			initSpawn = true;
 		}
 	}
 	
@@ -38,6 +51,12 @@ public class Generator : MonoBehaviour {
 		
 		GameObject newResource = Instantiate(Resources.Load(generator.ToString()), spawnPoint, transform.rotation) as GameObject;
 		newResource.transform.parent = this.transform;
+		
+		Spawn ns = newResource.GetComponent<Spawn>();
+		
+		ns.inPosition = true;
+		ns.resourceID = spawnedResources;
+		ns.DetectNewNodes();
 	}
 	
 	public void SpawnResource(Vector3 spawnPosition, float spawnRadius, float angleInDegrees)
@@ -49,10 +68,11 @@ public class Generator : MonoBehaviour {
 		
 		GameObject newResource = Instantiate(Resources.Load(generator.ToString()), spawnPoint, transform.rotation) as GameObject;
 		newResource.transform.parent = this.transform;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-			
+		
+		Spawn ns = newResource.GetComponent<Spawn>();
+		
+		ns.inPosition = true;
+		ns.resourceID = spawnedResources;
+		ns.DetectNewNodes();
 	}
 }

@@ -10,7 +10,7 @@ public class FlockingBehaviour : MonoBehaviour
 	public int basketID = -1;
 	
 	float maxSpeed = 2;
-	float maxForce = 3;
+	float maxForce = 1F;
 	
 	float range = 6;
 //	float fleeRange = 6;
@@ -22,6 +22,9 @@ public class FlockingBehaviour : MonoBehaviour
 	float seekWeight = 10F;
 	
 	float idleDelay = 0F;
+	
+	// villager resouces carrying
+	public int carryingStone = 0;
 	
 	Vector3 steeringAccumulator = Vector3.zero;
 	Vector3 steerForce = Vector3.zero;
@@ -41,13 +44,30 @@ public class FlockingBehaviour : MonoBehaviour
 	
 	public List<int> ownedNodes = new List<int>();
 	
+	Speak voice;
+	float talkThreashold = 0.98F; // The higher, the less likely they are to talk. 
+	
 	// Use this for initialization
 	void Awake ()
 	{		
 		player = GameObject.Find("Player").transform;
 		graph = GameObject.Find("NavigationGraph").GetComponent<GraphScript>();
+		voice = transform.FindChild("Speech").GetComponent<Speak>();
 		
 		transform.FindChild("Cube").renderer.material.mainTexture = Resources.Load("Villager-" + Random.Range(1,4)) as Texture;
+	
+	
+		float spawnSay = Random.value;
+		
+		if(spawnSay > 0.9) voice.Say("Exuberant!");
+		else if(spawnSay > 0.8) voice.Say("Alive again!");
+		else if(spawnSay > 0.7) voice.Say("Why?");
+		else if(spawnSay > 0.6) voice.Say("Hello, world!");
+		else if(spawnSay > 0.5) voice.Say("Statistical!");
+		else if(spawnSay > 0.4) voice.Say("Help");
+		else if(spawnSay > 0.3) voice.Say("*hick*");
+		else if(spawnSay > 0.2) voice.Say("Hats!");
+		else if(spawnSay > 0.1) voice.Say("I'm lost.");
 	}
 	
 	// Update is called once per frame
@@ -71,15 +91,58 @@ public class FlockingBehaviour : MonoBehaviour
 		}
 		if(rigidbody.velocity.magnitude>0.01F)
 		{
-			Vector3 look = transform.position + rigidbody.velocity;
+			//Vector3 look = transform.position + rigidbody.velocity;
+			Vector3 look;
+			
+			if(pathToFollow.Count>0) look = graph.nodes[pathToFollow[0]].transform.position;
+			else look = transform.position + rigidbody.velocity;
+			
 			look.y = transform.position.y;
 			transform.LookAt(look, new Vector3(0,1,0));
 		}
 		if(transform.position.y < 0) transform.position = new Vector3(transform.position.x, transform.localScale.y * 1.1F, transform.position.z);
 		
+		if(rigidbody.velocity.magnitude > 5F)
+		{
+			if(Random.value > talkThreashold)
+			{
+				float spawnSay = Random.value;
+				if(spawnSay > 0.95F) voice.Say("WAAAAAHH", true);
+				else if(spawnSay > 0.9F) voice.Say("OH NO", true);
+				else if(spawnSay > 0.8F) voice.Say("TOO FAST", true);
+				else if(spawnSay > 0.7F) voice.Say("AWAY!", true);
+				else if(spawnSay > 0.5F) voice.Say("I MADE A MISTAKEEEEEE~", true);
+				else if(spawnSay > 0.3F) voice.Say("WHOOOP", true);
+				else if(spawnSay > 0.3F) voice.Say("AHH", true);
+				else if(spawnSay > 0.2F) voice.Say("GOTTA GO FAST", true);
+				else if(spawnSay > 0.1F) voice.Say("PATHFINDING?", true);
+			}
 			
+			rigidbody.velocity *= 0.3F * Time.deltaTime;
+		}
+		
 		if(rigidbody.velocity.magnitude > 1F) animation.Blend( "Walk" );
-		else if(idleDelay>0) animation.Blend( "Idle" );
+		else if(idleDelay>0)
+		{
+			animation.Blend( "Idle" );
+			
+			if(Random.value > talkThreashold)
+			{
+				float spawnSay = Random.value;
+				if(spawnSay > 0.998F) voice.Say("Hello darkness my old friend");
+				else if(spawnSay > 0.9F) voice.Say("I'm here.");
+				else if(spawnSay > 0.8F) voice.Say("What's that?");
+				else if(spawnSay > 0.7F && homeID != -1) voice.Say("Look at my hat! Everybody! Anybody?");
+				else if(spawnSay > 0.7F && basketID == -1) voice.Say("No hats...");
+				else if(spawnSay > 0.5F) voice.Say("Pentagons...");
+				else if(spawnSay > 0.3F) voice.Say("*hick*");
+				else if(spawnSay > 0.3F) voice.Say("Hrm.");
+				else if(spawnSay > 0.2F) voice.Say("Maybe...");
+				else if(spawnSay > 0.1F) voice.Say("It's not time.");
+			}
+		}
+		
+		if(pathToFollow.Count == 0) rigidbody.velocity = Vector3.zero;
 	}
 	
 	public void StartFlocking(System.Collections.Generic.List<GameObject> flock)
@@ -117,19 +180,28 @@ public class FlockingBehaviour : MonoBehaviour
 	
 				if(inRange.Count > 0)
 				{
-					steeringAccumulator += cohesionWeight * CohesionSteering();
-					steeringAccumulator += separationWeight * SeparationSteering();
+				//	steeringAccumulator += cohesionWeight * CohesionSteering();
+				//	steeringAccumulator += separationWeight * SeparationSteering();
 				}
 				
-				// if the world has nodes placed in it
-				if(graph.nodes.Count>0)
+				// if the world has nodes placed in it\
+				if(graph.nodes.Count>2)
 				{
 					if(pathToFollow.Count<=0) SetTarget();
 					if(inRange.Count==0) steeringAccumulator += seekWeight * SeekNodeSteering();
 					else steeringAccumulator += (seekWeight/2) * SeekNodeSteering();
 				}
 				
-				steeringAccumulator.y = 0;			
+				/*
+				int layermask = ~(1<<8);
+				RaycastHit hit;
+				if(Physics.SphereCast(transform.position, 1F, transform.forward, out hit, 2F, layermask))
+				{
+					print ("Hit " + hit.transform.name);
+				}
+				*/
+				
+				// steeringAccumulator.y = 0;			
 				
 				if(steeringAccumulator.magnitude>maxForce)
 				{
@@ -257,7 +329,7 @@ public class FlockingBehaviour : MonoBehaviour
 				if(!found && ( node.ownedByVillager == -1 ||  (villagerID!=-1 && node.ownedByVillager == villagerID) || Random.Range(1,100)>90 ))
 				{
 					dist = (node.transform.position - t).magnitude;
-					nearestNode = node.index;
+					nearestNode = graph.nodes.IndexOf(node);
 				}
 				
 				// Randomly reallows sheep to go to these locations.
@@ -285,7 +357,7 @@ public class FlockingBehaviour : MonoBehaviour
 				if((node.transform.position - t.position).magnitude < dist && node.edges.Count > 0)
 				{
 					dist = (node.transform.position - t.position).magnitude;
-					nearestNode = node.index;
+					nearestNode = graph.nodes.IndexOf(node);
 				}				
 			}
 		}
@@ -309,7 +381,7 @@ public class FlockingBehaviour : MonoBehaviour
 		
 		if((transform.position - player.transform.position).magnitude<3F) print (startPath + " -> " + endPath);
 		
-		pathToFollow = graph.FindPath(startPath, endPath);
+//		pathToFollow = graph.FindPath(startPath, endPath);
 
 		nodeHistory.Add(endPath);
 	}
@@ -319,17 +391,52 @@ public class FlockingBehaviour : MonoBehaviour
 		Vector3 desiredVel = Vector3.zero;
 		int layerMask = ~(1<<8);
 		
-		//  || FindClosestNode(target)!=pathToFollow[pathToFollow.Count-1]
 		if(pathToFollow.Count == 0) 
 		{
 			CreatePath();
 		}
 		
+		try
+		{
+//			List<int> checkPath = graph.FindPath(pathToFollow[0], pathToFollow[pathToFollow.Count-1]);
+			if(!(pathToFollow.Count>0 && checkPath.Count > 0 && pathToFollow.Count == checkPath.Count
+				&& pathToFollow[0] == checkPath[0] &&
+				pathToFollow[pathToFollow.Count-1] == checkPath[checkPath.Count - 1]))
+			{
+				pathToFollow = checkPath;
+			}
+		}
+		catch
+		{
+			if(Random.value > talkThreashold)
+			{
+				float spawnSay = Random.value;
+				if(spawnSay > 0.8F) voice.Say("I'm confused!");
+				else if(spawnSay > 0.6F) voice.Say("GAH!");
+				else if(spawnSay > 0.4F) voice.Say("Not like this...");
+				else if(spawnSay > 0.2F) voice.Say("Inconceivable!");
+				else voice.Say("SO ANGRY");
+			}
+		}
+		
 		if(pathToFollow.Count > 0)
 		{
-			if(Physics.Linecast(transform.position, graph.nodes[pathToFollow[0]].transform.position, layerMask))
+			if(Physics.Linecast(transform.position + (transform.right * transform.localScale.y) - transform.up, graph.nodes[pathToFollow[0]].transform.position, layerMask) || 
+				Physics.Linecast(transform.position - (transform.right * transform.localScale.y) - transform.up, graph.nodes[pathToFollow[0]].transform.position, layerMask))
 			{
-				pathToFollow = graph.FindPath(Random.Range(0, graph.nodes.Count-1), pathToFollow[pathToFollow.Count-1]);
+				int start = Random.Range(0, graph.nodes.Count-1);
+				int end;
+				
+				end = FindClosestVisibleNode(transform);
+					/*
+					 * Random.Range(0, graph.nodes.Count-1);
+				if(end == start && start < graph.nodes.Count-2) end = start+1;
+				else if(end == start && start > 0) end = start-1;
+				else
+					print("fuck this shit");
+					*/
+				
+//				pathToFollow = graph.FindPath(start, end);
 				//pathToFollow = graph.FindPath(FindClosestVisibleNode(transform), Random.Range(0, graph.nodes.Count-1));
 			}	
 		}
@@ -369,6 +476,8 @@ public class FlockingBehaviour : MonoBehaviour
 					}
 					
 					hat.renderer.material.color = new Color(Random.value, Random.value, Random.value, 1.0F);
+					
+					voice.Say("I AM HOME OWNER. HA!");
 				}
 				
 				// Villager finds unmanned basket
@@ -399,6 +508,7 @@ public class FlockingBehaviour : MonoBehaviour
 					
 					hat.transform.FindChild("Cube").renderer.material.color = new Color(Random.value, Random.value, Random.value, 1.0F);
 					
+					voice.Say("This is mine.");
 				}
 				
 				if(Random.Range(0,100) > 75) idleDelay = Random.Range(0, 5);

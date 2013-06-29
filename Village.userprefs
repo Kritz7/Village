@@ -1,17 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\PoopShader.shader">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\AI\FlockingBehaviourRedux.cs">
     <Files>
-      <File FileName="Assets\PoopShader.shader" Line="30" Column="7" />
-      <File FileName="Assets\Scripts\World.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Creation.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Resources\Storage.cs" Line="5" Column="2" />
-      <File FileName="Assets\Scripts\Spawn.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Gathering.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Resources\Generator.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\AI\GraphScript.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\AI\NavigationScript.cs" Line="14" Column="34" />
-      <File FileName="Assets\Scripts\AI\FlockingBehaviour.cs" Line="243" Column="23" />
+      <File FileName="Assets\Scripts\AI\FlockingBehaviourRedux.cs" Line="23" Column="72" />
+      <File FileName="Assets\Scripts\AI\GraphScript.cs" Line="164" Column="20" />
+      <File FileName="Assets\Scripts\AI\Flock.cs" Line="37" Column="4" />
+      <File FileName="Assets\Scripts\AI\NavigationScript.cs" Line="61" Column="52" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

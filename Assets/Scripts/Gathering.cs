@@ -6,7 +6,7 @@ public class Gathering : MonoBehaviour {
 	
 	public int maxCarryLimit = 10;
 	
-	public int rock = 0;
+	public int rock = 8;
 	
 	bool isPlayer = false;
 	
@@ -21,17 +21,31 @@ public class Gathering : MonoBehaviour {
 		{
 			if(Input.GetKeyDown(KeyCode.Mouse0))
 			{
-				int layerMask = ~(1<<10);
+				int layerMask = ~((1<<10) | (1<<8));
 				
 				RaycastHit hit;
 				if(Physics.SphereCast(Camera.main.transform.position, 0.5F, Camera.main.transform.forward, out hit, 7F, layerMask))
 				{
+					print (hit.transform.name);
+					
 					if(hit.transform.name.Equals("Rock(Clone)"))
 					{
 						if(CurrentInventoryAmount() < maxCarryLimit)
 						{
 							rock++;
+							
+							Spawn rockSpawn = hit.transform.GetComponent<Spawn>();
+							List<NavigationScript> nodesToDestroy = rockSpawn.createdNodes;
+							GraphScript gs = GameObject.Find("NavigationGraph").GetComponent<GraphScript>();
+							
+							for(int i = 0; i<nodesToDestroy.Count; i++)
+							{
+								gs.nodes.Remove(nodesToDestroy[i]);
+								Destroy(nodesToDestroy[i].gameObject);
+							}
 							Destroy(hit.transform.gameObject);
+							gs.RecalculatePaths();
+							
 						}
 					}
 					
