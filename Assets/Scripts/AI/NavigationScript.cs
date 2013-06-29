@@ -49,7 +49,7 @@ public class NavigationScript : MonoBehaviour {
 				if(dist<maxEdgeLength)
 				{
 					RaycastHit hit;
-					if(!Physics.SphereCast(transform.position, 0.65F, (node.transform.position - transform.position).normalized, out hit, (node.transform.position - transform.position).magnitude, layerMask))
+					if(!Physics.SphereCast(transform.position, 0.6F, (node.transform.position - transform.position).normalized, out hit, (node.transform.position - transform.position).magnitude, layerMask))
 					{
 						edges.Add(graph.nodes.IndexOf(node));	
 					}

@@ -19,6 +19,7 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	public int carryingStone = 0;
 	
 	// Locomotion logic
+	float moveForce = 2;
 	Vector3 target = Vector3.zero;
 	public List<NavigationScript> pathToFollow = new List<NavigationScript>();
 	public List<int> nodeHistory = new List<int>();
@@ -28,10 +29,12 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	{
 		if(s.Length > 0)
 		{
-			float sayChanceInc = 1 / s.Length;
+			float sayChanceInc = 1.0F / s.Length;
 			float sayChance = sayChanceInc;
 			
 			float rand = Random.value;
+			
+			print (rand +  " <= " + sayChance);
 			
 			for(int i=0; i<s.Length; i++)
 			{
@@ -40,6 +43,8 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 					voice.Say(s[i]);	
 					break;
 				}
+				
+				sayChance += sayChanceInc;
 			}
 		}
 	}
@@ -56,17 +61,47 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 		Say ("Exuberant!", "Alive again!", "Why?", "Hello, world!", "Statistical!", "Help", "*hick*", "Hats!", "I'm lost.");		
 	}
 	
-	// Update is called once per frame
 	void Update ()
+	{
+		Vector3 look = transform.position;
+		
+		if(pathToFollow.Count>0) look = pathToFollow[0].transform.position;
+		
+		look.y = transform.position.y;
+		transform.LookAt(look, new Vector3(0,1,0));
+	}
+	
+	// Update is called once per frame
+	void FixedUpdate ()
 	{
 		if(pathToFollow.Count == 0)
 		{
-			CreatePath();	
+			CreatePath();
 		}
 		else
-		{
-			transform.LookAt(transform.position);
+		{			
+			int layerMask = ~(1<<8);
+			if(Physics.Linecast(transform.position - transform.up, pathToFollow[0].transform.position, layerMask))
+			{
+				CreatePath();
+			}
+			else
+			{				
+			    Vector3 dir = (pathToFollow[0].transform.position - transform.position).normalized;
+			    
+				if(rigidbody.velocity.magnitude > moveForce) dir = dir.normalized * moveForce;
+				
+				rigidbody.AddForce(dir);
+				
+				if((transform.position - pathToFollow[0].transform.position).magnitude <= 1.0F)
+				{
+					nodeHistory.Add(pathToFollow[0].index);
+					pathToFollow.RemoveAt(0);	
+				}
+			}
 		}
+		
+
 	}
 	
 	int FindClosestNode(Vector3 t, int s)
@@ -112,8 +147,8 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 		
 		foreach(NavigationScript node in graph.nodes)
 		{
-			if(!Physics.Linecast(t.position - t.up, node.transform.position, layerMask))
-			{
+			if(!Physics.Linecast(t.position, node.transform.position, layerMask))
+			{				
 				if((node.transform.position - t.position).magnitude < dist && node.edges.Count > 0)
 				{
 					dist = (node.transform.position - t.position).magnitude;
@@ -142,7 +177,5 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 		if((transform.position - player.transform.position).magnitude<3F) print (startPath + " -> " + endPath);
 		
 		pathToFollow = graph.FindPath(startPath, endPath);
-
-		nodeHistory.Add(endPath);
 	}
 }
