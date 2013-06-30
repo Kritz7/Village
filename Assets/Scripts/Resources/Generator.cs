@@ -51,12 +51,6 @@ public class Generator : MonoBehaviour {
 		
 		GameObject newResource = Instantiate(Resources.Load(generator.ToString()), spawnPoint, transform.rotation) as GameObject;
 		newResource.transform.parent = this.transform;
-		
-		Spawn ns = newResource.GetComponent<Spawn>();
-		
-		ns.inPosition = true;
-		ns.resourceID = spawnedResources;
-		ns.DetectNewNodes();
 	}
 	
 	public void SpawnResource(Vector3 spawnPosition, float spawnRadius, float angleInDegrees)
@@ -68,11 +62,5 @@ public class Generator : MonoBehaviour {
 		
 		GameObject newResource = Instantiate(Resources.Load(generator.ToString()), spawnPoint, transform.rotation) as GameObject;
 		newResource.transform.parent = this.transform;
-		
-		Spawn ns = newResource.GetComponent<Spawn>();
-		
-		ns.inPosition = true;
-		ns.resourceID = spawnedResources;
-		ns.DetectNewNodes();
 	}
 }

@@ -2,11 +2,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\AI\FlockingBehaviourRedux.cs">
     <Files>
-      <File FileName="Assets\Scripts\AI\FlockingBehaviourRedux.cs" Line="129" Column="4" />
+      <File FileName="Assets\Scripts\AI\FlockingBehaviourRedux.cs" Line="79" Column="3" />
       <File FileName="Assets\Scripts\AI\Flock.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\AI\Speak.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\AI\GraphScript.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\AI\GraphScript.cs" Line="123" Column="1" />
       <File FileName="Assets\Scripts\AI\NavigationScript.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Gathering.cs" Line="32" Column="7" />
+      <File FileName="Assets\Scripts\Resources\Generator.cs" Line="64" Column="49" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

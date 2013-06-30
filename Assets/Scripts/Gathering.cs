@@ -33,19 +33,7 @@ public class Gathering : MonoBehaviour {
 						if(CurrentInventoryAmount() < maxCarryLimit)
 						{
 							rock++;
-							
-							Spawn rockSpawn = hit.transform.GetComponent<Spawn>();
-							List<NavigationScript> nodesToDestroy = rockSpawn.createdNodes;
-							GraphScript gs = GameObject.Find("NavigationGraph").GetComponent<GraphScript>();
-							
-							for(int i = 0; i<nodesToDestroy.Count; i++)
-							{
-								gs.nodes.Remove(nodesToDestroy[i]);
-								Destroy(nodesToDestroy[i].gameObject);
-							}
 							Destroy(hit.transform.gameObject);
-							gs.RecalculatePaths();
-							
 						}
 					}
 					

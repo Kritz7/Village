@@ -19,7 +19,7 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	public int carryingStone = 0;
 	
 	// Locomotion logic
-	float moveForce = 5;
+	float moveForce = 10;
 	Vector3 target = Vector3.zero;
 	public List<NavigationScript> pathToFollow = new List<NavigationScript>();
 	public List<int> nodeHistory = new List<int>();
@@ -63,12 +63,26 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	
 	void Update ()
 	{
+		foreach(NavigationScript ns in pathToFollow)
+		{
+			if(ns==null)
+			{
+				pathToFollow.Remove(ns);
+				print ("removed node from villager " + villagerID + "'s path");
+			}
+		}
+		
 		Vector3 look = transform.position;
 		
-		if(pathToFollow.Count>0) look = pathToFollow[0].transform.position;
+		if(pathToFollow.Count>0 && pathToFollow[0]!=null) look = pathToFollow[0].transform.position;
+		
+		look += rigidbody.velocity;
 		
 		look.y = transform.position.y;
 		transform.LookAt(look, new Vector3(0,1,0));
+		
+		// Animation
+		if(rigidbody.velocity.magnitude > 0.2F) animation.Blend("Walk");
 	}
 	
 	// Update is called once per frame
@@ -76,16 +90,15 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	{
 		if(pathToFollow.Count == 0)
 		{
-			CreatePath();
+			if(graph.nodes.Count>2) CreatePath();
 		}
 		else
 		{			
 			int layerMask = ~(1<<8);
-			
-			
+
 			if(Physics.Linecast(transform.position - transform.up, pathToFollow[0].transform.position, layerMask))
 			{
-				CreatePath();
+				if(graph.nodes.Count>2) CreatePath();
 			}
 			else
 			{				
