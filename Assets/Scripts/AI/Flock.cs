@@ -25,7 +25,7 @@ public class Flock : MonoBehaviour {
 		for(int i=0;i<flockSize;i++)
 		{
 			GameObject boid = Instantiate(boidPrefab, transform.position, transform.rotation) as GameObject;
-			boid.transform.parent = transform;
+			//boid.transform.parent = transform;
 			
 			// Set boid position proper
 			Vector3 newPos = new Vector3(Random.insideUnitCircle.x, 0, Random.insideUnitCircle.y) + collider.bounds.size;
@@ -40,7 +40,7 @@ public class Flock : MonoBehaviour {
 	public void NewBoid()
 	{
 		GameObject boid = Instantiate(boidPrefab, transform.position, transform.rotation) as GameObject;
-		boid.transform.parent = transform;
+		//boid.transform.parent = transform;
 		
 		// Set boid position proper
 		Vector3 newPos = new Vector3(Random.insideUnitCircle.x, 0, Random.insideUnitCircle.y) + collider.bounds.size;

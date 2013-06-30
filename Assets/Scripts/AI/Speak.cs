@@ -59,6 +59,8 @@ public class Speak : MonoBehaviour {
 	
 	public void Say(string s, float t, bool interrupt = false)
 	{
+		if(t == -1) t = 99999999;
+			
 		if(textMesh == null) textMesh = GetComponent<TextMesh>();
 		if(textMesh.text.Equals("") || interrupt)
 		{

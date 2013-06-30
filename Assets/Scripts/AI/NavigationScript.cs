@@ -22,6 +22,8 @@ public class NavigationScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		graph = GameObject.Find("NavigationGraph").GetComponent<GraphScript>();
+		
+		
 	}
 	
 	// Update is called once per frame

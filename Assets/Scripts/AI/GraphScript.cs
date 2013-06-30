@@ -15,9 +15,14 @@ public class GraphScript : MonoBehaviour {
 		foreach(Transform n in transform)
 		{
 			NavigationScript navnode = n.GetComponent<NavigationScript>();
-			nodes.Add(navnode);
-			navnode.index = i;
-			i++;
+			if(navnode!=null)
+			{	
+				nodes.Add(navnode);
+				navnode.index = i;
+				navnode.transform.FindChild("Speech").GetComponent<TextMesh>().text = i+"";
+				
+				i++;
+			}
 		}
 		foreach(NavigationScript n in nodes)
 		{
@@ -160,6 +165,10 @@ public class GraphScript : MonoBehaviour {
 		}
 		
 		path.Reverse();
+		pathReturn.Reverse();
+		
+		print ("CP: " + pathReturn[0].index + " -> " + pathReturn[pathReturn.Count-1].index);
+		print ("CP2: " + path[0] + " -> " + path[path.Count-1]);
 		
 		return pathReturn;
 	}

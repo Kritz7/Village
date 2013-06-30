@@ -19,7 +19,7 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	public int carryingStone = 0;
 	
 	// Locomotion logic
-	float moveForce = 2;
+	float moveForce = 5;
 	Vector3 target = Vector3.zero;
 	public List<NavigationScript> pathToFollow = new List<NavigationScript>();
 	public List<int> nodeHistory = new List<int>();
@@ -81,6 +81,8 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 		else
 		{			
 			int layerMask = ~(1<<8);
+			
+			
 			if(Physics.Linecast(transform.position - transform.up, pathToFollow[0].transform.position, layerMask))
 			{
 				CreatePath();
@@ -91,17 +93,40 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 			    
 				if(rigidbody.velocity.magnitude > moveForce) dir = dir.normalized * moveForce;
 				
+				
+				int layer = ~(1<<8);
+				RaycastHit hit;
+				
+				if(Physics.Raycast(transform.position + (transform.right * (transform.localScale.y / 2)) - transform.up * 1.6F, transform.forward, out hit, 0.5F, layer))
+				{
+					
+					print ("Hitting " + hit.transform.name);
+					
+					Vector3 norm = (hit.point - transform.position).normalized;	
+					dir += -norm  * moveForce * 1.5F;
+				}
+				Debug.DrawRay(transform.position + (transform.right * (transform.localScale.y / 2)) - transform.up * 1.6F, (transform.forward * 0.5F) + (transform.right * (transform.localScale.y / 2)), Color.red);
+				
+				if(Physics.Raycast(transform.position - (transform.right * (transform.localScale.y / 2)) - transform.up * 1.6F, transform.forward, out hit, 0.5F, layer))
+				{
+					
+					print ("Hitting " + hit.transform.name);
+					
+					Vector3 norm = (hit.point - transform.position).normalized;	
+					dir += -norm  * moveForce * 1.5F;
+				}
+				Debug.DrawRay(transform.position - (transform.right * (transform.localScale.y / 2)) - transform.up * 1.6F, (transform.forward * 0.5F) - (transform.right * (transform.localScale.y / 2)), Color.blue);
+				
+				
 				rigidbody.AddForce(dir);
 				
-				if((transform.position - pathToFollow[0].transform.position).magnitude <= 1.0F)
+				if((transform.position - pathToFollow[0].transform.position).magnitude <= 2.0F)
 				{
 					nodeHistory.Add(pathToFollow[0].index);
 					pathToFollow.RemoveAt(0);	
 				}
 			}
 		}
-		
-
 	}
 	
 	int FindClosestNode(Vector3 t, int s)
@@ -161,6 +186,8 @@ public class FlockingBehaviourRedux : MonoBehaviour {
 	
 	void CreatePath()
 	{		
+		target = graph.nodes[Random.Range(0, graph.nodes.Count-1)].transform.position;
+		
 		int startPath = FindClosestVisibleNode(transform);
 		int endPath = FindClosestNode(target, startPath);	
 		
